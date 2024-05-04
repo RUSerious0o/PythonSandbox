@@ -24,15 +24,15 @@
 # print(*list_)
 
 # Таблица умножения, второй вэбинар
-def print_mult_table(from_num, to_num):
-    def print_table_string(*args, mult=1):
-        for num in args:
-            print(num * mult, end='\t')
-        print()
-
-    rng = range(from_num, to_num)
-    for i in rng:
-        print_table_string(*rng, mult=i)
-
-
-print_mult_table(1, 17)
+# def print_mult_table(from_num, to_num):
+#     def print_table_string(*args, mult=1):
+#         for num in args:
+#             print(num * mult, end='\t')
+#         print()
+#
+#     rng = range(from_num, to_num)
+#     for i in rng:
+#         print_table_string(*rng, mult=i)
+#
+#
+# print_mult_table(1, 17)
