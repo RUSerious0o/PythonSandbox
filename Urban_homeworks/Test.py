@@ -36,3 +36,44 @@
 #
 #
 # print_mult_table(1, 17)
+
+def func_(list_, num_, str_):
+    list_[0] = 10
+    num_ = 50
+    str_ = 'str'
+    new_list = []
+    # for item in list_:
+    #     new_list.append(item)
+
+    new_list.extend(list_)
+    new_list[0] = 20
+
+    print(list_, num_, str_, new_list)
+
+
+def print_params(**kwargs):
+    for key, value in kwargs.items():
+        print(key, value)
+
+
+def unique_numbers(input_times):
+    list_ = []
+    for i in range(input_times):
+        list_.extend(input().split(' '))
+
+    for item in list_:
+        if not item.isnumeric():
+            list_.remove(item)
+
+    print(sorted(set(map(int, list_))))
+
+
+lst_ = [1, 2, 3]
+n = 25
+s_ = 'string'
+func_(lst_, n, s_)
+print(lst_, n, s_)
+print_params(a=1, b=2)
+
+# help(sorted)
+unique_numbers(3)
