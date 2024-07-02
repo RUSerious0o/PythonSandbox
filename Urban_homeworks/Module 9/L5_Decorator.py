@@ -15,7 +15,7 @@ def is_prime(function):
         for i in range(2, sum):
             if (sum % i) == 0:
                 sum_is_prime = False
-        print(f'the sum of {(a, b, c)} = {sum} is{' ' if sum_is_prime else ' not '}prime')
+        print(f'the sum of {(a, b, c)} = {sum} is{" " if sum_is_prime else " not "}prime')
         return sum
     return wrapper
 
