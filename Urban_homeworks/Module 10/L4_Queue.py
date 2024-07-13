@@ -20,10 +20,10 @@ class Table:
 
 
 class Cafe:
-    __QUEUE_CHECK_DELAY = 0.01
     __CUSTOMER_ARRIVAL_DELAY = 0.1
-    __CUSTOMERS_COUNT_LIMIT = 20
+    __QUEUE_CHECK_DELAY = __CUSTOMER_ARRIVAL_DELAY / 19
     __CUSTOMER_SERVICE_TIME = 0.5
+    __NO_MORE_CUSTOMERS_EXPECTED = __CUSTOMER_ARRIVAL_DELAY * 3
 
     __operation_lock = Lock()
 
@@ -31,40 +31,58 @@ class Cafe:
         if not isinstance(tables, list | tuple):
             raise TypeError('Tables list required!')
 
+        if len(tables) == 0:
+            raise ValueError('Can\'t work without tables!')
+
         self.customers_queue = Queue()
         self.tables = tables
+        self.customers_not_arrived_time = 0
 
-    def customer_arrival(self):
+        Thread(target=self.start_service).start()
+
+    def customer_arrival(self, customer_count_limit=20):
         customer_number = 1
-        while customer_number <= self.__CUSTOMERS_COUNT_LIMIT:
-            sleep(self.__CUSTOMER_ARRIVAL_DELAY)
+        while customer_number <= customer_count_limit:
             customer = Customer(customer_number)
             with self.__operation_lock:
+                self.customers_not_arrived_time = 0
                 self.customers_queue.put(customer)
                 print(f'Посетитель номер {customer_number} прибыл.')
 
+            if self.customers_queue.qsize() > 1 or not self.__get_free_table():
+                with self.__operation_lock:
+                    print(f'Посетитель номер {customer.number} ожидает свободный стол.')
+
             customer_number += 1
-            thread = Thread(target=self.__serve_customer, args=(customer, ))
-            thread.start()
+            sleep(self.__CUSTOMER_ARRIVAL_DELAY)
 
-
-    def __serve_customer(self, customer):
-        while True:
-            for table in tables:
+    def __get_free_table(self):
+        with self.__operation_lock:
+            for table in self.tables:
                 if not table.is_busy:
-                    table.is_busy = True
-                    print(f'Посетитель номер {customer.number} сел за стол {table.number}. (начало обслуживания)')
-                    sleep(self.__CUSTOMER_SERVICE_TIME)
-                    print(f'Посетитель номер {customer.number} покушал и ушёл. (конец обслуживания)')
-                    table.is_busy = False
-                    return
+                    return table
+        return 0
+
+    def serve_customer(self, customer, table):
+        with self.__operation_lock:
+            table.is_busy = True
+            print(f'Посетитель номер {customer.number} сел за стол {table.number},')
+
+        sleep(self.__CUSTOMER_SERVICE_TIME)
+        with self.__operation_lock:
+            table.is_busy = False
+            print(f'Посетитель номер {customer.number} покушал и ушёл.')
+
+    def start_service(self):
+        while self.customers_not_arrived_time < self.__NO_MORE_CUSTOMERS_EXPECTED or not self.customers_queue.empty():
+            free_table = self.__get_free_table()
+            if free_table and not self.customers_queue.empty():
+                with self.__operation_lock:
+                    Thread(target=self.serve_customer, args=(self.customers_queue.get(), free_table)).start()
+
             sleep(self.__QUEUE_CHECK_DELAY)
+            self.customers_not_arrived_time += self.__QUEUE_CHECK_DELAY
 
-
-    def __serve_customers(self):
-        while True:
-
-            sleep(self.__QUEUE_CHECK_DELAY)
 
 class Customer:
     def __init__(self, number):
@@ -80,4 +98,3 @@ tables = [
 cafe = Cafe(tables)
 customer_arrival_thread = Thread(target=cafe.customer_arrival)
 customer_arrival_thread.start()
-# customer_arrival_thread.join()
