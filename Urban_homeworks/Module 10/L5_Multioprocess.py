@@ -3,7 +3,9 @@ from datetime import datetime
 from pprint import pprint
 from time import sleep
 from threading import Lock, Thread
-
+# import multiprocessing
+from multiprocessing import Manager, Process, Pool
+from concurrent.futures import ProcessPoolExecutor
 
 class WarehouseManager:
     def __init__(self):
@@ -31,11 +33,48 @@ class WarehouseManager:
 
         # print(request, self.data)
 
-    def run(self, requests):
-        [self.process_request(request) for request in requests]
+    def run(self, requests, requests_limit=5_000):
+        # threads = [Thread(target=self.process_request, args=)]
+        for _ in range(requests_limit):
+            self.process_request(requests.get())
+            # Thread(target=self.process_request, args=[requests.get()]).start()
+        # [self.process_request(request) for request in requests]
 
     def run_single_thread(self, requests):
         [self.process_request(request) for request in requests]
+
+
+def time_estimate(func):
+    def wrapper(*args):
+        start = datetime.now()
+        func(*args)
+        print(f'Estimated time: {datetime.now() - start}')
+
+    return wrapper
+
+
+def generate_requests(thrash_arg, number_of_reqs=1_250_000):
+    from random import randint, choice
+
+    prod_names = (
+        'Гвозди',
+        'Доска',
+        'Блок',
+        'Саморез',
+        'Дюбель',
+        'Швеллер',
+        'Профиль',
+        'Плитка',
+        'Розетка'
+    )
+    req_types = (
+        'receipt',
+        'shipment'
+    )
+
+    requests = [(choice(prod_names), choice(req_types), randint(30, 250)) for _ in range(number_of_reqs)]
+    # manager_dict
+    return requests
 
 
 if __name__ == '__main__':
@@ -52,62 +91,28 @@ if __name__ == '__main__':
     ]
 
     # Запускаем обработку запросов
-    manager.run(requests)
+    # manager.run(requests)
 
     # Выводим обновленные данные о складских запасах
     print(manager.data)
 
     # additional test
-    from multiprocessing import Process
-
     print()
     managers = (
         WarehouseManager(),
         WarehouseManager()
     )
+
+    # 5 сек
     requests = []
+    start = datetime.now()
+    with Pool(processes=4) as pool:
+        result = pool.map(generate_requests, range(4))
 
+    for list_ in result:
+        requests.extend(list_)
+    print(len(requests), datetime.now() - start, sep='\n')
 
-    def time_estimate(func):
-        def wrapper(*args):
-            start = datetime.now()
-            func(*args)
-            print(f'Estimated time: {datetime.now() - start}')
-
-        return wrapper
-
-
-    def generate_requests(number_of_reqs):
-        from random import randint, choice
-
-        prod_names = (
-            'Гвозди',
-            'Доска',
-            'Блок',
-            'Саморез',
-            'Дюбель',
-            'Швеллер',
-            'Профиль',
-            'Плитка',
-            'Розетка'
-        )
-        req_types = (
-            'receipt',
-            'shipment'
-        )
-
-        return [(choice(prod_names), choice(req_types), randint(10, 250)) for _ in range(number_of_reqs)]
-
-
-    requests = generate_requests(5_000_000)
-    # Process(target=generate_requests, args=(1,)).start()
-
-    time_estimate(managers[0].run_single_thread)(requests)
-    time_estimate(managers[1].run)(requests)
-
-    pprint(managers[0].data)
-    pprint(managers[1].data)
-    print(managers[0].data == managers[1].data)
 
 """
 Постановка задачи, мягко говоря, странная:
