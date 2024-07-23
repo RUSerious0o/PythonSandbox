@@ -1,46 +1,28 @@
-import json
 from datetime import datetime
 from pprint import pprint
-from time import sleep
-from threading import Lock, Thread
-# import multiprocessing
-from multiprocessing import Manager, Process, Pool
-from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import Pool
+
 
 class WarehouseManager:
     def __init__(self):
         self.data = {}
-        self.operation_lock = Lock()
 
     def process_request(self, request: tuple):
         if not isinstance(request, tuple | list):
             raise TypeError('request must be tuple(name, req_type, volume)')
 
         if not request[0] in self.data.keys():
-            with self.operation_lock:
-                self.data[request[0]] = 0
+            self.data[request[0]] = 0
 
         if request[1] == 'receipt':
-            with self.operation_lock:
-                self.data[request[0]] += request[2]
+            self.data[request[0]] += request[2]
 
         if request[1] == 'shipment':
             remains = self.data[request[0]]
             if request[2] <= remains:
-                with self.operation_lock:
-                    self.data[request[0]] -= request[2]
-                return request[2]
+                self.data[request[0]] -= request[2]
 
-        # print(request, self.data)
-
-    def run(self, requests, requests_limit=5_000):
-        # threads = [Thread(target=self.process_request, args=)]
-        for _ in range(requests_limit):
-            self.process_request(requests.get())
-            # Thread(target=self.process_request, args=[requests.get()]).start()
-        # [self.process_request(request) for request in requests]
-
-    def run_single_thread(self, requests):
+    def run(self, requests):
         [self.process_request(request) for request in requests]
 
 
@@ -91,7 +73,7 @@ if __name__ == '__main__':
     ]
 
     # Запускаем обработку запросов
-    # manager.run(requests)
+    manager.run(requests)
 
     # Выводим обновленные данные о складских запасах
     print(manager.data)
@@ -100,10 +82,8 @@ if __name__ == '__main__':
     print()
     managers = (
         WarehouseManager(),
-        WarehouseManager()
     )
 
-    # 5 сек
     requests = []
     start = datetime.now()
     with Pool(processes=4) as pool:
@@ -111,18 +91,7 @@ if __name__ == '__main__':
 
     for list_ in result:
         requests.extend(list_)
-    print(len(requests), datetime.now() - start, sep='\n')
+    print(f'Нагенерили {len(requests)} запросов за {datetime.now() - start} сек')
 
-
-"""
-Постановка задачи, мягко говоря, странная:
-Во-первых, задача на 'мультипроцессорность' подразумевает использование, например, Pool-а, А он, в свою очередь,
-создает копии метода, которые ему скормили, для разных процессов. Т.е. все процессы, которые наплодит Пул, 
-будут иметь общий доступ к iterable объекту, содержащему исходные данные для функции, но не к общему ресурсу для
-складывания результатов работы. Ну и на threading.Lock он ругается. Таким образом это задание на многопоточность, 
-а не на многопроцессность
-Во-вторых, мы моделируем работу склада. А на складе, вообще-то, есть разница, в каком порядке грузы поступают и 
-отгружаются. Если мы каждый поступающий запрос будем просто скармливать новому потоку, то при больших количествах 
-запросов и отсутствии задержек выполнения, из-за GIL-а мы не сможем контролировать порядок их выполнения нашим 
-менеджером и, следовательно, результат ...  
-"""
+    time_estimate(managers[0].run)(requests)
+    pprint(managers[0].data)
