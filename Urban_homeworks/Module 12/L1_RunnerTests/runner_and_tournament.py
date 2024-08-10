@@ -13,6 +13,15 @@ class Runner:
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return self.name
+
+    def __lt__(self, other):
+        return self.speed < other.speed
+
+    def __le__(self, other):
+        return self.speed <= other.speed
+
     def __eq__(self, other):
         if isinstance(other, str):
             return self.name == other
@@ -27,13 +36,9 @@ class Tournament:
 
     def start(self):
         finishers = {}
-        place = 1
-        while self.participants:
-            for participant in self.participants:
-                participant.run()
-                if participant.distance >= self.full_distance:
-                    finishers[place] = participant
-                    place += 1
-                    self.participants.remove(participant)
+
+        self.participants.sort(reverse=True)
+        for i in range(len(self.participants)):
+            finishers[i + 1] = self.participants[i]
 
         return finishers
