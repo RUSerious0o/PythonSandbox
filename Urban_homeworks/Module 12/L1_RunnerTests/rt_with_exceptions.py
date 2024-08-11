@@ -3,7 +3,7 @@ class Runner:
         if isinstance(name, str):
             self.name = name
         else:
-            raise TypeError(f'Имя может быть только числом, передано {type(name).__name__}')
+            raise TypeError(f'Имя может быть только строкой, передано {type(name).__name__}')
         self.distance = 0
         if speed > 0:
             self.speed = speed
