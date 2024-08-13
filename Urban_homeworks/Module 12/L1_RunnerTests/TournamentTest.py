@@ -3,6 +3,8 @@ from runner_and_tournament import Runner, Tournament
 
 
 class TournamentTest(unittest.TestCase):
+    __is_frozen = True
+
     @classmethod
     def setUpClass(cls):
         cls.all_results = []
@@ -19,11 +21,13 @@ class TournamentTest(unittest.TestCase):
         for result in cls.all_results:
             print(result)
 
+    @unittest.skipIf(__is_frozen, 'Тесты в этом кейсе заморожены')
     def test_tournament_trios(self):
         self.all_results.append(Tournament(90, *self.runners).start())
         self.all_results.append(Tournament(90, self.runners[1], self.runners[2], self.runners[0]).start())
         self.all_results.append(Tournament(90, self.runners[2], self.runners[0], self.runners[1]).start())
 
+    @unittest.skipIf(__is_frozen, 'Тесты в этом кейсе заморожены')
     def test_tournament_couples_01(self):
         result = Tournament(90, self.runners[0], self.runners[1]).start()
         self.all_results.append(result)
@@ -33,6 +37,7 @@ class TournamentTest(unittest.TestCase):
         self.all_results.append(result)
         self.assertEqual({1: self.runners[0], 2: self.runners[1]}, result)
 
+    @unittest.skipIf(__is_frozen, 'Тесты в этом кейсе заморожены')
     def test_tournament_couples_02(self):
         result = Tournament(90, self.runners[0], self.runners[2]).start()
         self.all_results.append(result)
@@ -42,6 +47,7 @@ class TournamentTest(unittest.TestCase):
         self.all_results.append(result)
         self.assertEqual({1: self.runners[0], 2: self.runners[2]}, result)
 
+    @unittest.skipIf(__is_frozen, 'Тесты в этом кейсе заморожены')
     def test_tournament_couples_12(self):
         result = Tournament(90, self.runners[1], self.runners[2]).start()
         self.all_results.append(result)
