@@ -18,23 +18,23 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 
 
 @dp.message_handler(text=['Calories', 'calories', 'c'])
-async def set_age(message):
+async def set_age(message, state):
     await message.answer('Введите свой возраст')
-    await UserState.age.set()
+    await state.set_state(UserState.age)
 
 
 @dp.message_handler(state=UserState.age)
 async def set_growth(message: Message, state: FSMContext):
     await state.update_data(age=message.text)
     await message.answer('Введите свой рост')
-    await UserState.growth.set()
+    await state.set_state(UserState.growth)
 
 
 @dp.message_handler(state=UserState.growth)
 async def set_weight(message: Message, state: FSMContext):
     await state.update_data(growth=message.text)
     await message.answer('Введите свой вес')
-    await UserState.weight.set()
+    await state.set_state(UserState.weight)
 
 
 @dp.message_handler(state=UserState.weight)
