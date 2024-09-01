@@ -9,6 +9,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.types import FSInputFile
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
+import L4_ProductsDB_ORM
+
 
 class UserState(StatesGroup):
     age = State()
@@ -60,9 +62,10 @@ async def show_main_menu(message: Message):
 
 @dp.message(F.text == 'Купить')
 async def get_buying_list(message: Message):
-    for i in range(1, 5):
-        caption_ = f'Название: Тыковка {i} | Описание: описание {i} | Цена: {i * 100}'
-        await message.answer_photo(photo=FSInputFile('./pics/pump.png'), caption=caption_)
+    products = L4_ProductsDB_ORM.get_all_products()
+    for product in products:
+        caption_ = f'Название: {product[1]} | Описание: {product[2]} | Цена: {product[3]}'
+        await message.answer_photo(photo=FSInputFile(product[4]), caption=caption_)
     await message.answer(text='Выберите продукт для покупки:', reply_markup=inline_buy_menu)
 
 
@@ -122,4 +125,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
+    L4_ProductsDB_ORM.initiate_db()
     asyncio.run(main())
