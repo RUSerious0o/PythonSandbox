@@ -18,6 +18,13 @@ class UserState(StatesGroup):
     weight = State()
 
 
+class RegistrationState(StatesGroup):
+    username = State()
+    email = State()
+    age = State()
+    balance = State()
+
+
 dp = Dispatcher(storage=MemoryStorage())
 
 reply_keyboard = ReplyKeyboardMarkup(keyboard=[
@@ -27,6 +34,9 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
     ],
     [
         KeyboardButton(text='Купить')
+    ],
+    [
+        KeyboardButton(text='Регистрация')
     ]
 ], resize_keyboard=True)
 
@@ -119,10 +129,48 @@ async def send_calories(message: Message, state: FSMContext):
     await message.answer(f'Ваша норма калорий: {round(calories, 1)}')
 
 
+@dp.message(F.text == 'Регистрация')
+async def sing_up(message: Message, state: FSMContext):
+    await message.answer('Введите имя пользователя (только латинский алфавит):')
+    await state.set_state(RegistrationState.username)
+
+
+@dp.message(RegistrationState.username)
+async def set_username(message: Message, state: FSMContext):
+    if L4_ProductsDB_ORM.is_included(message.text):
+        await message.answer('Пользователь существует, введите другое имя')
+    else:
+        await state.update_data(username=message.text)
+        await message.answer('Введите свой email:')
+        await state.set_state(RegistrationState.email)
+
+
+@dp.message(RegistrationState.email)
+async def set_email(message: Message, state: FSMContext):
+    await state.update_data(email=message.text)
+    await message.answer('Введите свой возраст:')
+    await state.set_state(RegistrationState.age)
+
+
+@dp.message(RegistrationState.age)
+async def set_age(message: Message, state: FSMContext):
+    data = await state.get_data()
+    username = data['username']
+    email = data['email']
+    age = int(message.text)
+
+    L4_ProductsDB_ORM.add_user(username, email, age)
+    if L4_ProductsDB_ORM.is_included(username):
+        await message.answer('Пользователь успешно добавлен!')
+    else:
+        await message.answer('Что-то пошло не так!')
+
+
 async def main():
     bot = Bot(token=__token)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
+
 
 if __name__ == '__main__':
     L4_ProductsDB_ORM.initiate_db()
