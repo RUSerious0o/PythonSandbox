@@ -6,6 +6,7 @@ from bot_token import __token
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from aiogram.types import FSInputFile
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 
@@ -21,6 +22,9 @@ reply_keyboard = ReplyKeyboardMarkup(keyboard=[
     [
         KeyboardButton(text='Рассчитать'),
         KeyboardButton(text='Информация')
+    ],
+    [
+        KeyboardButton(text='Купить')
     ]
 ], resize_keyboard=True)
 
@@ -31,6 +35,17 @@ inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     ]
 ])
 
+inline_buy_menu = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text='Продукт 1', callback_data='product_buying'),
+            InlineKeyboardButton(text='Продукт 2', callback_data='product_buying'),
+            InlineKeyboardButton(text='Продукт 3', callback_data='product_buying'),
+            InlineKeyboardButton(text='Продукт 4', callback_data='product_buying'),
+        ]
+    ]
+)
+
 
 @dp.message(CommandStart())
 async def start_bot(message: Message, state: FSMContext):
@@ -39,8 +54,22 @@ async def start_bot(message: Message, state: FSMContext):
 
 
 @dp.message(F.text == 'Рассчитать')
-async def main_menu(message: Message):
+async def show_main_menu(message: Message):
     await message.answer(text='Выберите опцию', reply_markup=inline_keyboard)
+
+
+@dp.message(F.text == 'Купить')
+async def get_buying_list(message: Message):
+    for i in range(1, 5):
+        caption_ = f'Название: Тыковка {i} | Описание: описание {i} | Цена: {i * 100}'
+        await message.answer_photo(photo=FSInputFile('./pics/pump.png'), caption=caption_)
+    await message.answer(text='Выберите продукт для покупки:', reply_markup=inline_buy_menu)
+
+
+@dp.callback_query(F.data == 'product_buying')
+async def send_confirm_message(call: CallbackQuery):
+    await call.message.answer(text='Вы успешно приобрели продукт!')
+    await call.answer()
 
 
 @dp.callback_query(F.data == 'formulas')
