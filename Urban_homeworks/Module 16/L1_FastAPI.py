@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Path, HTTPException
+from fastapi import FastAPI, Path, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import uvicorn
 from typing import Annotated
+from fastapi.templating import Jinja2Templates
 
 
 class User(BaseModel):
@@ -13,6 +15,7 @@ class User(BaseModel):
 app = FastAPI()
 users: list[User] = []
 max_user_id: int = 0
+templates = Jinja2Templates(directory='./templates')
 
 
 annotations = {
@@ -22,9 +25,15 @@ annotations = {
 }
 
 
-@app.get('/users')
-async def get_users() -> list[User]:
-    return users
+@app.get('/')
+async def get_users(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse('users.html', {'request': request, 'users': users})
+
+
+@app.get('/users/{user_id}')
+async def get_user(request: Request, user_id: int) -> HTMLResponse:
+    user = next(filter(lambda user_: user_.id == user_id, users), None)
+    return templates.TemplateResponse('users.html', {'request': request, 'user': user})
 
 
 @app.post('/user/{username}/{age}')
