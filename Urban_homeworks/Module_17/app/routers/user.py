@@ -5,7 +5,7 @@ from typing import Annotated
 from slugify import slugify
 
 from Module_17.app.backend.db_depends import get_db
-from Module_17.app.models import User
+from Module_17.app.models import User, Task
 from Module_17.app.schemas import CreateUser, UpdateUser
 
 
@@ -70,6 +70,7 @@ async def delete_user(db: Annotated[Session, Depends(get_db)], user_id: int):
             detail='User not found!'
         )
 
+    db.execute(delete(Task).where(Task.user_id == user_id))
     db.execute(delete(User).where(User.id == user_id))
 
     db.commit()
