@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Магазин</title>
+</head>
+<body>
+    <h1>Игры</h1>
+    <ul>
+        {% for item in goods_list %}
+            <li>{{ item|title }}<button>Купить</button></li>
+        {% endfor %}
+    </ul>
+    <form action="/">
+        <button>Вернуться обратно</button>
+    </form>
+</body>
+</html>
