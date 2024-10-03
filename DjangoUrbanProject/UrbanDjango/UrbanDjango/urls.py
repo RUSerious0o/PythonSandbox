@@ -19,7 +19,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from task2.views import get_test_view_function, ClassTestView
-from task3.views import get_main_page, get_shop_page, get_cart_page
+from task4.views import get_main_page, get_shop_page, get_cart_page
 
 
 urlpatterns = [
