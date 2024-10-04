@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма регистрации</title>
+</head>
+<body>
+    <h2>
+        {% block server_response %}
+            {% for line in error %}
+                <p>{{ line }}</p>
+            {% endfor %}
+        {% endblock %}
+    </h2>
+    <form method="post">
+        {% csrf_token %}
+        {% block registration_form %}
+            {% if form %}
+                {{ form }}
+            {% else %}
+                <label for="username">Введите логин:</label>
+                <input type="text" maxlength="30" id="username" name="username" required value={{ username }}>
+                <p></p>
+
+                <label for="password">Введите пароль:</label>
+                <input type="password" id="password" name="password" minlength="8" required>
+                <p></p>
+
+                <label for="repeat_password">Повторите пароль:</label>
+                <input type="password" id="repeat_password" name="repeat_password" minlength="8" required>
+                <p></p>
+
+                <label for="age">Введите свой возраст:</label>
+                <input type="number" id="age" min="8" max="999" name="age" maxlength="3" value={{ age }}>
+                <p></p>
+            {% endif %}
+        {% endblock %}
+
+        <button type="submit">Отправить</button>
+    </form>
+</body>
+</html>
