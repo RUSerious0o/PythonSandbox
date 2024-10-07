@@ -1,0 +1,11 @@
+{% extends "task1/menu.html" %}
+
+{% block pagename %}
+    Корзина
+{% endblock %}
+
+{% block content %}
+    {% if cart_is_empty %}
+        <h1>Извините, Ваша корзина пуста</h1>
+    {% endif %}
+{% endblock %}
