@@ -6,6 +6,10 @@
     {% if form %}
         {{ form.as_p }}
     {% else %}
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+
         <p>
             <label for="username">Username: </label>
             <input type="text" id="username" name="username" required>

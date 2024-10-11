@@ -7,9 +7,9 @@ class DetectedObject(Base):
     __tablename__ = 'detectedobjects'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    object_type = Column(String, nullable=False, string_length=100)
+    object_type = Column(String(100), nullable=False)
     confidence = Column(Float, nullable=False)
-    location = Column(String, nullable=False, string_length=255)
+    location = Column(String(255), nullable=False)
     image_feed_id = Column(BigInteger, ForeignKey('imagefeeds.id'), nullable=False)
 
-    rel_detected_object = relationship('ImageFeed', back_populates='rel_detected_object')
+    rel_detected_object_obj = relationship('ImageFeed', back_populates='rel_detected_object_feed')

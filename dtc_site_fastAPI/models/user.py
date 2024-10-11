@@ -7,7 +7,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String, nullable=False, string_length=150, unique=True)
-    password = Column(String, string_length=128, nullable=False)
+    name = Column(String(150), nullable=False, unique=True)
+    password = Column(String(128), nullable=False)
 
-    rel_image_feed = relationship('ImageFeed', back_populates='rel_image_feed')
+    rel_image_feed_user = relationship('ImageFeed', back_populates='rel_image_feed_feed')
