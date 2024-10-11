@@ -1,6 +1,16 @@
-from fastapi import APIRouter, Request
+import os.path
+
+from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from typing import Annotated
+
+from starlette.responses import FileResponse
+
+from db import get_db
+from models import ImageFeed
+from routers.post import UPLOAD_DIRECTORY
 
 router = APIRouter(prefix='', tags=['Get'])
 templates = Jinja2Templates(directory='./templates')
@@ -40,10 +50,14 @@ async def get_register_page(request: Request):
 
 
 @router.get('/dashboard')
-async def get_dashboard_page(request: Request):
+async def get_dashboard_page(
+        request: Request,
+        db: Annotated[Session, Depends(get_db)]
+):
+    user_id = request.session.get('user_id', None)
     return templates.TemplateResponse('dashboard.html', {
         'request': request,
-        'image_feeds': [],
+        'image_feeds': db.scalars(select(ImageFeed).where(ImageFeed.user_id == user_id)),
         'user': request.session.get('user', None)
     })
 
@@ -54,3 +68,8 @@ async def get_image_feed_page(request: Request):
         'request': request,
         'user': request.session.get('user', None)
     })
+
+
+@router.get('/media/images/{image_name}')
+async def get_image(image_name: str):
+    return FileResponse(os.path.join(UPLOAD_DIRECTORY, image_name))

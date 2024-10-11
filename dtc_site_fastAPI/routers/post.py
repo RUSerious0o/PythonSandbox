@@ -1,19 +1,24 @@
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from typing import Annotated
+import shutil
+import os
+import random
 
 from db import get_db
-from models.user import User
+from models import User, ImageFeed, DetectedObject
 
 
 router = APIRouter(prefix='', tags=['Post'])
 templates = Jinja2Templates(directory='./templates')
 
-fake_users_db = {
-    'user1': 'pwd1'
-}
+UPLOAD_DIRECTORY = 'media/images'
+PROCESSED_IMG_DIR = 'media/processed_images'
+SUPPORTED_IMAGE_TYPES = ('.jpg', '.png', '.jpeg')
+os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+os.makedirs(PROCESSED_IMG_DIR, exist_ok=True)
 
 
 @router.post("/login")
@@ -25,6 +30,7 @@ async def login(
 ):
     if db.scalar(select(User).where(User.name == username, User.password == password)):
         request.session["user"] = username
+        request.session['user_id'] = db.scalar(select(User.id).where(User.name == username))
         return templates.TemplateResponse("dashboard.html", {
             "request": request,
             'user': request.session.get('user', None)
@@ -75,8 +81,51 @@ async def register(
     ))
     db.commit()
     request.session['user'] = username
+    request.session['user_id'] = db.scalar(select(User).where(User.name == username))
 
     return templates.TemplateResponse('home.html', {
         'request': request,
         'user': request.session.get('user', None),
+    })
+
+
+async def generate_filepath(image: UploadFile):
+    code_ = ''.join([random.choice("abcdefghijklmnopqrstuvw123456789" if i != 5 else "ABCDEFGHIJKLMNOPQRSTUVW123456798") for i in range(8)])
+    filename = image.filename.split('.')
+    filename = f'{filename[0]}_{code_}.{filename[1]}'
+    return os.path.join(UPLOAD_DIRECTORY, filename)
+
+@router.post('/upload_image')
+async def upload_image(
+        request: Request,
+        db: Annotated[Session, Depends(get_db)],
+        image: UploadFile = File()
+):
+    if not image.filename.endswith(SUPPORTED_IMAGE_TYPES):
+        return templates.TemplateResponse('add_image_feed.html', {
+            'request': request,
+            'message': 'Incorrect image format!'
+        })
+
+    user_id = request.session.get('user_id', None)
+    if not user_id:
+        return templates.TemplateResponse('add_image_feed.html', {
+            'request': request,
+            'message': 'User ID undetected, please relogin!'
+        })
+
+    file_location = await generate_filepath(image)
+    with open(file_location, 'wb') as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    db.execute(insert(ImageFeed).values(
+        image=file_location,
+        user_id=request.session.get('user_id')
+    ))
+    db.commit()
+
+    return templates.TemplateResponse('dashboard.html', {
+        'request': request,
+        'image_feeds': db.scalars(select(ImageFeed).where(ImageFeed.user_id == user_id)),
+        'user': request.session.get('user', None)
     })
