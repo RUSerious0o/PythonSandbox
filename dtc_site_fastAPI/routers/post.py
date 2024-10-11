@@ -16,7 +16,6 @@ fake_users_db = {
 async def login(request: Request, username: Annotated[str, Form()], password: Annotated[str, Form()]):
     if username in fake_users_db and fake_users_db[username] == password:
         request.session["user"] = username
-        print(username)
         return templates.TemplateResponse("dashboard.html", {
             "request": request,
             'user': request.session.get('user', None)
