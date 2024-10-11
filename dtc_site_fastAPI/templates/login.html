@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+    {% if form %}
+        {{ form.as_p }}
+    {% else %}
+        <p>
+            <label for="username">Username: </label>
+            <input type="text" id="username" name="username" required>
+        </p>
+
+        <p>
+            <label for="password">Password: </label>
+            <input type="password" id="password" name="password" required>
+        </p>
+
+    {% endif %}
+
+    <button type="submit">Login</button>
+</form>
+<a href="/register">Register</a>
+{% endblock %}

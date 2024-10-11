@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Add Image Feed</h2>
+<form method="post" enctype="multipart/form-data">
+    {% if form %}
+        {{ form.as_p }}
+    {% else %}
+
+    {% endif %}
+    <button type="submit">Upload Image</button>
+</form>
+{% endblock %}
