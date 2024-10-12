@@ -1,16 +1,16 @@
-import os.path
+import os
 
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse, FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from starlette.responses import FileResponse
-
 from db import get_db
 from models import ImageFeed
-from routers.post import UPLOAD_DIRECTORY
+from routers.post import UPLOAD_DIRECTORY, PROCESSED_IMG_DIR
+from utils import process_image as utils_process_image
 
 router = APIRouter(prefix='', tags=['Get'])
 templates = Jinja2Templates(directory='./templates')
@@ -73,3 +73,22 @@ async def get_image_feed_page(request: Request):
 @router.get('/media/images/{image_name}')
 async def get_image(image_name: str):
     return FileResponse(os.path.join(UPLOAD_DIRECTORY, image_name))
+
+
+@router.get('/media/processed_images/{image_name}')
+async def get_processed_image(image_name: str):
+    return FileResponse(os.path.join(PROCESSED_IMG_DIR, image_name))
+
+
+@router.get('/process_image/{image_id}')
+async def process_image(
+        request: Request,
+        image_id: int,
+        db: Annotated[Session, Depends(get_db)]
+):
+
+    image = db.scalar(select(ImageFeed).where(ImageFeed.id == image_id))
+    if not image.processed_image:
+        utils_process_image(image_id, image.image, PROCESSED_IMG_DIR, db)
+
+    return RedirectResponse('/dashboard')
