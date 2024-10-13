@@ -5,9 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import AnonymousUserMixin
 
-from utils import is_logged_in, check_login, generate_filepath
+from utils import is_logged_in, check_login, generate_filepath, process_image as utils_process_image
 
 UPLOAD_FOLDER_PATH = 'static/media/images'
+PROCESSED_IMAGE_DIR = 'static/media/processed_images'
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///detection_site.db'
@@ -15,6 +16,7 @@ app.config['SECRET_KEY'] = 'xRsytXzlPwPAJnX9y0VGl6kwu1Yia90E'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER_PATH
 
 os.makedirs(UPLOAD_FOLDER_PATH, exist_ok=True)
+os.makedirs(PROCESSED_IMAGE_DIR, exist_ok=True)
 
 db = SQLAlchemy(app)
 
@@ -145,7 +147,8 @@ def get_dashboard_page():
     if is_logged_in():
         return render_template(
             'dashboard.html',
-            user=is_logged_in()
+            user=is_logged_in(),
+            image_feeds=ImageFeed.query.filter_by(user_id=current_user.id)
         )
     else:
         return redirect('/login')
@@ -190,6 +193,27 @@ def upload_image():
         return redirect('/dashboard')
 
     return redirect('/')
+
+
+@app.route('/process_image/<image_id>', methods=['GET'])
+def process_image(image_id: int):
+    image_feed = ImageFeed.query.get(int(image_id))
+    if image_feed.processed_image:
+        return redirect('/dashboard')
+
+    detected_object = DetectedObject(image_feed_id=image_id, object_type=None, location='', confidence=0)
+    processed_image_path = utils_process_image(
+        image_id,
+        ImageFeed.query.get(int(image_id)).image,
+        PROCESSED_IMAGE_DIR,
+        db,
+        detected_object
+    )
+
+    image_feed.processed_image = processed_image_path
+    db.session.commit()
+
+    return redirect('/dashboard')
 
 
 if __name__ == '__main__':
