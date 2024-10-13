@@ -2,8 +2,7 @@ import os
 
 from flask import Flask, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, login_required, logout_user, current_user, LoginManager
-from flask_login.mixins import AnonymousUserMixin
+from flask_login import UserMixin, login_user, logout_user, current_user, LoginManager
 
 from utils import is_logged_in, check_login, generate_filepath, process_image as utils_process_image
 
@@ -44,7 +43,7 @@ class ImageFeed(db.Model):
 
     rel_image_feed_feed = db.relationship('User', back_populates='rel_image_feed_user')
     rel_detected_object_feed = db.relationship('DetectedObject',
-                                               back_populates='rel_detected_object_obj',
+                                               backref='parent',
                                                cascade='all, delete-orphan',
                                                passive_deletes=True)
 
@@ -57,8 +56,6 @@ class DetectedObject(db.Model):
     confidence = db.Column(db.Float, nullable=False)
     location = db.Column(db.String(255), nullable=False)
     image_feed_id = db.Column(db.BigInteger, db.ForeignKey('imagefeeds.id', ondelete='CASCADE'), nullable=False)
-
-    rel_detected_object_obj = db.relationship('ImageFeed', back_populates='rel_detected_object_feed')
 
 
 @login_manager.user_loader
@@ -222,8 +219,12 @@ def process_image(image_id: int):
 @app.route('/delete_image/<image_id>', methods=['POST'])
 def delete_image(image_id):
     image = ImageFeed.query.get(int(image_id))
+    detected_objects = DetectedObject.query.get(int(image_id))
+
     db.session.delete(image)
+    db.session.delete(detected_objects)
     db.session.commit()
+
     os.remove(image.image)
     os.remove(image.processed_image)
 
