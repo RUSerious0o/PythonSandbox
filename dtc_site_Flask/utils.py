@@ -3,7 +3,7 @@ from flask_login.mixins import AnonymousUserMixin
 
 
 def is_logged_in() -> bool:
-    return isinstance(current_user, AnonymousUserMixin)
+    return not isinstance(current_user, AnonymousUserMixin)
 
 
 def check_login(login_: str) -> bool:
