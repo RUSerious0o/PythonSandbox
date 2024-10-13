@@ -1,13 +1,20 @@
+import os
+
 from flask import Flask, render_template, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, login_required, logout_user, current_user, LoginManager
 from flask_login.mixins import AnonymousUserMixin
 
-from utils import is_logged_in, check_login
+from utils import is_logged_in, check_login, generate_filepath
+
+UPLOAD_FOLDER_PATH = 'static/media/images'
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///detection_site.db'
 app.config['SECRET_KEY'] = 'xRsytXzlPwPAJnX9y0VGl6kwu1Yia90E'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER_PATH
+
+os.makedirs(UPLOAD_FOLDER_PATH, exist_ok=True)
 
 db = SQLAlchemy(app)
 
@@ -135,15 +142,53 @@ def get_register_page():
 
 @app.route('/dashboard')
 def get_dashboard_page():
-    return render_template(
-        'dashboard.html',
-        user=is_logged_in()
-    )
+    if is_logged_in():
+        return render_template(
+            'dashboard.html',
+            user=is_logged_in()
+        )
+    else:
+        return redirect('/login')
 
 
 @app.route('/logout')
 def logout():
     logout_user()
+    return redirect('/')
+
+
+@app.route('/add_image', methods=['GET', 'POST'])
+def get_add_image_page():
+    if not is_logged_in():
+        return redirect('/login')
+
+    return render_template(
+        'add_image_feed.html',
+        user=is_logged_in()
+    )
+
+
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if not is_logged_in():
+        return redirect('/login')
+
+    if 'image' not in request.files:
+        return redirect(request.url)
+
+    image = request.files['image']
+    if image.filename == '':
+        return redirect(request.url)
+
+    if image:
+        image_path = generate_filepath(UPLOAD_FOLDER_PATH, image.filename)
+        image.save(image_path)
+        image_feed = ImageFeed(image=image_path, user_id=current_user.id)
+        db.session.add(image_feed)
+        db.session.commit()
+
+        return redirect('/dashboard')
+
     return redirect('/')
 
 
