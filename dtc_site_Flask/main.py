@@ -43,7 +43,10 @@ class ImageFeed(db.Model):
     processed_image = db.Column(db.String(100), nullable=True)
 
     rel_image_feed_feed = db.relationship('User', back_populates='rel_image_feed_user')
-    rel_detected_object_feed = db.relationship('DetectedObject', back_populates='rel_detected_object_obj')
+    rel_detected_object_feed = db.relationship('DetectedObject',
+                                               back_populates='rel_detected_object_obj',
+                                               cascade='all, delete-orphan',
+                                               passive_deletes=True)
 
 
 class DetectedObject(db.Model):
@@ -53,7 +56,7 @@ class DetectedObject(db.Model):
     object_type = db.Column(db.String(100), nullable=False)
     confidence = db.Column(db.Float, nullable=False)
     location = db.Column(db.String(255), nullable=False)
-    image_feed_id = db.Column(db.BigInteger, db.ForeignKey('imagefeeds.id'), nullable=False)
+    image_feed_id = db.Column(db.BigInteger, db.ForeignKey('imagefeeds.id', ondelete='CASCADE'), nullable=False)
 
     rel_detected_object_obj = db.relationship('ImageFeed', back_populates='rel_detected_object_feed')
 
@@ -212,6 +215,17 @@ def process_image(image_id: int):
 
     image_feed.processed_image = processed_image_path
     db.session.commit()
+
+    return redirect('/dashboard')
+
+
+@app.route('/delete_image/<image_id>', methods=['POST'])
+def delete_image(image_id):
+    image = ImageFeed.query.get(int(image_id))
+    db.session.delete(image)
+    db.session.commit()
+    os.remove(image.image)
+    os.remove(image.processed_image)
 
     return redirect('/dashboard')
 
