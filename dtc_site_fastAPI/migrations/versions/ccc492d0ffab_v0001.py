@@ -1,8 +1,8 @@
 """v0001
 
-Revision ID: 262fa75bf562
+Revision ID: ccc492d0ffab
 Revises: 
-Create Date: 2024-10-11 21:44:20.170464
+Create Date: 2024-10-14 19:39:06.868696
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '262fa75bf562'
+revision: str = 'ccc492d0ffab'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -44,7 +44,7 @@ def upgrade() -> None:
     sa.Column('confidence', sa.Float(), nullable=False),
     sa.Column('location', sa.String(length=255), nullable=False),
     sa.Column('image_feed_id', sa.BigInteger(), nullable=False),
-    sa.ForeignKeyConstraint(['image_feed_id'], ['imagefeeds.id'], ),
+    sa.ForeignKeyConstraint(['image_feed_id'], ['imagefeeds.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_detectedobjects_id'), 'detectedobjects', ['id'], unique=False)

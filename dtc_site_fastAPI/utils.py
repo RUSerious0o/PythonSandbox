@@ -29,7 +29,6 @@ def process_image(
         config_path = 'mobilenet_ssd_deploy.prototxt'
         net = cv2.dnn.readNetFromCaffe(config_path, model_path)
 
-        print(image_path)
         img = cv2.imread(image_path)
         if img is None:
             print("Failed to load image")

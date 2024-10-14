@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Request, Form, Depends, UploadFile, File
+from fastapi import APIRouter, Request, Form, Depends, UploadFile, File, HTTPException, status
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -81,7 +82,7 @@ async def register(
     ))
     db.commit()
     request.session['user'] = username
-    request.session['user_id'] = db.scalar(select(User).where(User.name == username))
+    request.session['user_id'] = db.scalar(select(User.id).where(User.name == username))
 
     return templates.TemplateResponse('home.html', {
         'request': request,
@@ -129,3 +130,17 @@ async def upload_image(
         'image_feeds': db.scalars(select(ImageFeed).where(ImageFeed.user_id == user_id)),
         'user': request.session.get('user', None)
     })
+
+
+@router.post('/delete_image/{image_id}')
+async def delete_image(image_id: int, db: Annotated[Session, Depends(get_db)]):
+    image = db.query(ImageFeed).filter(ImageFeed.id == image_id).first()
+    if image is None:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    db.delete(image)
+    db.commit()
+    os.remove(image.image)
+    os.remove(image.processed_image)
+
+    return RedirectResponse('/dashboard', status_code=status.HTTP_303_SEE_OTHER)

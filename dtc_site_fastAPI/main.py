@@ -13,4 +13,4 @@ app.add_middleware(SessionMiddleware, secret_key=key_)
 
 
 if __name__ == '__main__':
-    uvicorn.run(app='main:app', port=8000, reload=True)
+    uvicorn.run(app='main:app', port=8001, reload=True)

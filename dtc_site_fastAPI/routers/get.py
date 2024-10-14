@@ -16,6 +16,7 @@ router = APIRouter(prefix='', tags=['Get'])
 templates = Jinja2Templates(directory='./templates')
 
 
+@router.get('/')
 @router.get('/home')
 async def get_welcome_page(request: Request):
     return templates.TemplateResponse('home.html', {
@@ -35,10 +36,7 @@ async def get_login_page(request: Request):
 @router.get('/logout')
 async def logout(request: Request):
     request.session.pop('user', None)
-    return templates.TemplateResponse('home.html', {
-        'request': request,
-        'user': request.session.get('user', None)
-    })
+    return RedirectResponse('/home')
 
 
 @router.get('/register')
@@ -64,6 +62,9 @@ async def get_dashboard_page(
 
 @router.get('/add_image')
 async def get_image_feed_page(request: Request):
+    if not request.session.get('user', None):
+        return RedirectResponse('/login')
+
     return templates.TemplateResponse('add_image_feed.html', {
         'request': request,
         'user': request.session.get('user', None)

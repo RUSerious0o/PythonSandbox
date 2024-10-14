@@ -12,4 +12,6 @@ class ImageFeed(Base):
     processed_image = Column(String(100), nullable=True)
 
     rel_image_feed_feed = relationship('User', back_populates='rel_image_feed_user')
-    rel_detected_object_feed = relationship('DetectedObject', back_populates='rel_detected_object_obj')
+    detected_objects = relationship('DetectedObject',
+                                    back_populates='image_feed',
+                                    cascade='all, delete-orphan')

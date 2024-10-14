@@ -10,6 +10,6 @@ class DetectedObject(Base):
     object_type = Column(String(100), nullable=False)
     confidence = Column(Float, nullable=False)
     location = Column(String(255), nullable=False)
-    image_feed_id = Column(BigInteger, ForeignKey('imagefeeds.id'), nullable=False)
+    image_feed_id = Column(BigInteger, ForeignKey('imagefeeds.id', ondelete='CASCADE'), nullable=False)
 
-    rel_detected_object_obj = relationship('ImageFeed', back_populates='rel_detected_object_feed')
+    image_feed = relationship('ImageFeed', back_populates='detected_objects')
