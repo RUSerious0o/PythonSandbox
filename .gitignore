@@ -2,3 +2,4 @@
 .venv*
 *.pyc
 *token*
+*db_pwd.py
