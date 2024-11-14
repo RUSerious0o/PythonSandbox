@@ -44,9 +44,7 @@ class PriceMachine():
                 with open(os.path.join(file_path, file), 'r', encoding='utf-8') as data:
                     reader = csv.reader(data)
                     headers = next(reader)
-                    print(headers)
                     columns = PriceMachine._search_product_price_weight(self, headers)
-                    print(columns)
                     for row in reader:
                         data = []
                         for column in columns:
@@ -55,9 +53,8 @@ class PriceMachine():
                         data.append(float(data[1]) / float(data[2]))
                         self.data.append(data)
 
-        # pprint(self.data)
         self.data.sort(key=lambda x: int(x[4]), reverse=False)
-        # pprint(self.data)
+        return 'Данные успешно загружены!\n'
 
 
     def _search_product_price_weight(self, headers):
@@ -71,6 +68,7 @@ class PriceMachine():
                 for i in range(len(headers)):
                     if value == headers[i]:
                         col_nums.append(i)
+                        break
 
         return col_nums
 
@@ -93,6 +91,21 @@ class PriceMachine():
                     <th>Цена за кг.</th>
                 </tr>
         '''
+
+        for item_num, item in enumerate(self.data, start=1):
+            name, price, weight, file, price_per_weight = item
+            result += '<tr>'
+            result += f'<td>{item_num}</td>'
+            result += f'<td>{name}</td>'
+            result += f'<td>{price}</td>'
+            result += f'<td>{weight}</td>'
+            result += f'<td>{file}</td>'
+            result += f'<td>{price_per_weight:.2f}</td>'
+
+        result += '</table></body>'
+
+        with open(fname, 'w') as file:
+            file.write(result)
     
     def find_text(self, text):
         print(f'{"№":4}'
@@ -111,7 +124,7 @@ class PriceMachine():
                       f'{row[1]:8}'
                       f'{row[2]:8}'
                       f'{row[3]:16}'
-                      f'{row[4]:.1f}')
+                      f'{row[4]:.2f}')
 
     
 pm = PriceMachine()
@@ -121,7 +134,16 @@ print(pm.load_prices(PriceMachine.DATA_PATH))
     Логика работы программы
 '''
 
-pm.find_text('щук')
+upload_request = input('Желаете сохранить данные в формете html? (д/н) ')
+if upload_request.lower() in ['д', 'y']:
+    pm.export_to_html()
+
+while(True):
+    text = input('Введите данные для поиска: ')
+    if text.lower() == 'exit':
+        break
+
+    pm.find_text(text)
 
 print('the end')
 print(pm.export_to_html())
