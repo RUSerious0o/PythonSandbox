@@ -106,7 +106,7 @@ class PriceMachine:
 
         result += '</table></body>'
 
-        with open(fname, 'w') as file:
+        with open(fname, 'w', encoding='utf-8') as file:
             file.write(result)
 
         return 'Данные успешно выгружены!'
