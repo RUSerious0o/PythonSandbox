@@ -1,5 +1,6 @@
 import data_download as dd
 import data_plotting as dplt
+from utils import calculate_and_display_average_price
 
 
 def main():
@@ -18,6 +19,9 @@ def main():
 
     # Plot the data
     dplt.create_and_save_plot(stock_data, ticker, period)
+
+    # View average price
+    calculate_and_display_average_price(stock_data)
 
 
 if __name__ == "__main__":
