@@ -1,4 +1,5 @@
 from pandas import DataFrame
+import csv
 
 
 def calculate_and_display_average_price(data: DataFrame):
@@ -29,3 +30,16 @@ def notify_if_strong_fluctuations(data: DataFrame, threshold: float):
     diff = (data['Close'].max() - data['Close'].min()) / data['Close'].max()
     if diff >= threshold / 100:
         print(f'В заданном периоде цена акций колебалась более, чем на заданный процент ({threshold:.2f} %)')
+
+
+def export_data_to_csv(data: DataFrame, filename: str):
+    """
+        Функция сохраняет загруженные данные об акциях в CSV файл.
+        Функция принимает DataFrame и имя файла, после чего сохраняет данные в указанный файл.
+
+    :param data: pandas.DataFrame, данные об акциях за период
+    :param filename:
+    :return: None
+    """
+
+    data.to_csv(filename, encoding='utf-8')

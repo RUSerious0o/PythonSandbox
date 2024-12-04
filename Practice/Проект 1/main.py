@@ -1,6 +1,6 @@
 import data_download as dd
 import data_plotting as dplt
-from utils import calculate_and_display_average_price, notify_if_strong_fluctuations
+from utils import *
 
 
 def main():
@@ -26,6 +26,9 @@ def main():
     # Strong fluctuations test
     notify_if_strong_fluctuations(stock_data, 10.5)
     notify_if_strong_fluctuations(stock_data, 3.1)
+
+    # Write data to csv file
+    export_data_to_csv(stock_data, 'stock_data.csv')
 
 
 if __name__ == "__main__":
