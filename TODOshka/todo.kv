@@ -1,0 +1,79 @@
+#: include kivy_widgets/clickable_label.kv
+#: include kivy_widgets/simple_list_item.kv
+#: include kivy_widgets/interactive_pad.kv
+#: include kivy_widgets/forms/enter_string_value_form.kv
+#: include kivy_widgets/forms/delete_confirmation_form.kv
+
+<SimpleListScreen>
+    BoxLayout:
+        id: main_layout
+        orientation: 'vertical'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, None
+
+            RecycleView:
+                id: tab_view
+                viewclass: 'TabLabel'
+                size_hint: 0.9, None
+
+                RecycleBoxLayout:
+                    id: tab_layout
+
+                    #default_size: None, dp(56)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'horizontal'
+
+            BoxLayout:
+                size_hint: 0.1, None
+                padding: 16
+
+                RoundedButton:
+                    text: '+'
+                    size_hint: 1, 1
+                    padding: 16, 16, 16, 16
+                    on_press: root.add_list_clicked()
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            BoxLayout:
+                id: interactive_pad_box
+                size_hint: 0.2, 1
+                orientation: 'vertical'
+                padding: 2, 2, 4, 4
+
+            BoxLayout:
+                id: content_box
+                size_hint: 1 - interactive_pad_box.size_hint_x, 1
+                orientation: 'vertical'
+
+<ContentView>
+    viewclass: 'SimpleListItem'
+    size_hint: 1, 1
+
+    RecycleBoxLayout:
+        id: content_layout
+
+        #default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<RoundedButton@Button>:
+    background_color: 0,0,0,0  # the last zero is the critical on, make invisible
+    canvas.before:
+        Color:
+            #rgba: (.4,.4,.4,1) if self.state=='normal' else (0,.7,.7,1)  # visual feedback of press
+            rgba: (0, 0, 0,1) if self.state=='normal' else (0,.7,.7,1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
+
+    font_size: self.height * 0.6
+    bold: True

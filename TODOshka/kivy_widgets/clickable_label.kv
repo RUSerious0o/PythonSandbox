@@ -1,0 +1,13 @@
+<ClickableLabel>
+    bg_color: 0, 0, 0, 1
+
+    canvas.before:
+        Color:
+            rgba: root.bg_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    size: self.texture_size
+    text_size: self.size
+    valign: 'middle'

@@ -1,0 +1,37 @@
+#: include kivy_widgets/forms/Item_dettails_form.kv
+
+<SimpleListItem>
+    canvas.before:
+        Color:
+            rgba: 0, 1, 1, 0.15
+        Rectangle:
+            size: self.width, self.height - 2
+            pos: self.pos
+
+    SimpleListItemLabel:
+        id: short_description_label
+        text: root.short_description
+        halign: 'left'
+        size_hint_x: 5
+
+    Button:
+        background_normal: 'images/pencil.png'
+        on_press: root.update_item_shorts()
+
+    SimpleListItemLabel:
+        id: details_label
+        text: 'Детали'
+        on_ref_press: root.show_details()
+
+    CheckBox:
+        id: is_completed
+        active: root.is_completed
+        on_press: root.on_checkbox_clicked()
+
+    Button:
+        background_normal: 'images/delete.png'
+        on_press: root.unbind_item()
+
+<SimpleListItemLabel>
+    bg_color: 1, 1, 1, 0
+    padding: 16, 4, 4, 4

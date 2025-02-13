@@ -1,5 +1,3 @@
 .idea*
 .venv*
-*.pyc
-*token*
-*db_pwd.py
+Urban_homeworks/Module 10/__pycache__/L1_Threads_WriteWords.cpython-312.pyc

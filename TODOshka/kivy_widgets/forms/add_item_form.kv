@@ -1,0 +1,45 @@
+#: include kivy_widgets/forms/pick_item_form.kv
+
+<AddItemForm>
+    orientation: 'vertical'
+
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint: 1, 1
+
+        DarkThemeTextInput:
+            id: short_content_input
+            size_hint: 0.9, 1
+            multiline: False
+            hint_text: 'Название (краткое содержание)'
+
+            font_size: 32
+
+        Button:
+            text: ''
+            size_hint: 0.1, 1
+            background_normal: 'images/button_list.png'
+            on_press: root.on_pick_item_pressed()
+
+    DarkThemeTextInput:
+        id: details_input
+        multiline: True
+        hint_text: 'Детальное описание (необязательно)'
+        size_hint: 1, 3
+
+    Button:
+        text: 'ОК'
+        on_press: root.on_submit_pressed()
+        size_hint: 1, 1
+
+<DarkThemeTextInput@TextInput>
+    background_color: 0, 0, 0, 1
+    foreground_color: 1, 1, 1, 1
+    font_size: 30
+
+<InputLabel@Label>
+    size: self.texture_size
+    text_size: self.size
+    valign: 'middle'
+    halign: 'center'
+    font_size: 24

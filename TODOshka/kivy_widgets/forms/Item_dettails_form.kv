@@ -1,0 +1,12 @@
+<ItemDetailsForm>
+    orientation: 'vertical'
+
+    TextInput:
+        id: details_input
+        text: root.details
+        background_color: 0, 0, 0, 1
+        foreground_color: 1, 1, 1, 1
+
+    Button:
+        text: 'Сохранить изменения'
+        on_press: root.update_item_details()

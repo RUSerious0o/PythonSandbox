@@ -1,0 +1,22 @@
+<DeleteConfirmationForm>
+    Label:
+        text: 'Подтвердите удаление'
+
+        size_hint: 1, 0.5
+        pos_hint: {'x': 0, 'top': 1}
+
+    Button:
+        text: 'Отмена'
+
+        size_hint: 0.5, 0.5
+        pos_hint: {'x': 0, 'top': 0.5}
+
+        on_press: root.deletion_canceled()
+
+    Button:
+        text: 'Удалить'
+
+        size_hint: 0.5, 0.5
+        pos_hint: {'x': 0.5, 'top': 0.5}
+
+        on_press: root.deletion_confirmed()

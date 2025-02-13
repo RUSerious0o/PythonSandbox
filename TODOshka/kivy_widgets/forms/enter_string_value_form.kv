@@ -1,0 +1,16 @@
+<EnterStringValueForm>
+    orientation: 'vertical'
+
+    TextInput:
+        id: name_input
+
+        background_color: 0, 0, 0, 1
+        foreground_color: 1, 1, 1, 1
+        size_hint: 1, None
+        font_size: 48
+        #input_filter: 'string'
+        multiline: False
+
+    Button:
+        text: 'Submit'
+        on_press: root.send_list_name()

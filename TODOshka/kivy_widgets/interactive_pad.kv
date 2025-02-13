@@ -1,0 +1,69 @@
+#: include kivy_widgets/forms/add_item_form.kv
+
+<InteractivePad>
+    orientation: 'vertical'
+    padding: 4, 0, 0, 0
+    image_box_padding: 1, 1, 1, 1
+    image_border: 1, 1, 1, 1
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        Button:
+            background_normal: 'images/add_item.png'
+            border: root.image_border
+            on_press: root.show_add_item_form()
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        ToggleButton:
+            id: show_completed_button
+            background_normal: 'images/closed_eye.png'
+            background_down: 'images/opened_eye.png'
+            border: root.image_border
+            state: 'down'
+            on_press: root.show_completed_items_button_clicked()
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        ToggleButton:
+            id: sep_lists_button
+            background_normal: 'images/one_list.png'
+            background_down: 'images/two_lists.png'
+            border: root.image_border
+            state: 'down'
+            on_press: root.show_separated_lists_button_clicked()
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        Button:
+            background_normal: 'images/edit_list_name.png'
+            border: root.image_border
+            on_press: root.update_list_clicked()
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        Button:
+            background_normal: 'images/erase_list_items.png'
+            border: root.image_border
+            on_press: root.unbind_all_items()
+
+    BoxLayout:
+        padding: root.image_box_padding
+
+        Button:
+            background_normal: 'images/delete_list.png'
+            border: root.image_border
+            on_press: root.delete_selected_list()
+
+    Label:
+        text: ''
+
+<InteractivePadButton@Button>
+    text_size: self.size
+    valign: 'middle'
+    halign: 'center'

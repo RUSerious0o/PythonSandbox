@@ -1,0 +1,39 @@
+<PickItemForm>
+    TextInput:
+        id: text_input
+        multiline: False
+        font_size: 30
+
+        pos_hint: {'x': 0, 'top': 1}
+        size_hint: 0.9, 0.1
+
+        background_color: 0, 0, 0, 1
+        foreground_color: 1, 1, 1, 1
+
+    ToggleButton:
+        id: filter_items_button
+        state: 'down'
+        background_normal: 'images/filter_normal.png'
+        background_down: 'images/filter_down.png'
+        border: 1, 1, 1, 1
+
+        on_press: root.filter_items_button_clicked()
+
+        pos_hint: {'x': 0.9, 'top': 1}
+        size_hint: 0.1, 0.1
+
+    RecycleView:
+        id: items_list
+        viewclass: 'ItemLabel'
+
+        pos_hint: {'x': 0, 'top': 0.9}
+        size_hint: 1, 0.9
+
+        RecycleBoxLayout:
+            id: items_layout
+
+            #default_size: None, dp(56)
+            default_size_hint: 1, None
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: 'vertical'
