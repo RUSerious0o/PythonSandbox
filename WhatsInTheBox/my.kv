@@ -1,0 +1,111 @@
+<Button>
+    font_name: 'Monomakh'
+
+<MainMenuScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+
+        Label:
+            text: 'Меню'
+            font_size: '48'
+            size_hint: 1, 0.25
+
+        Button:
+            text: 'Что в коробке?'
+            font_size: 60
+            on_press: root.manager.current = 'in_the_box'
+
+        Button:
+            text: 'Кто в кустах?'
+            font_size: 60
+            on_press: root.manager.current = 'in_the_bush'
+
+<WhatInTheBoxScreen>
+    on_pre_enter: root.refresh_screen()
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint: 1, 0.2
+
+            BackImage:
+                source: 'images/back.png'
+                size_hint: 0.15, 1
+
+            Label:
+                text: "Что в коробке?"
+                font_size: 72
+
+            RefreshImage:
+                source: 'images/refresh.png'
+                size_hint: 0.15, 1
+
+        FadeScreenManager:
+            id: images_screen_manager
+            size_hint: 1, 0.5
+
+            Screen:
+                name: 'box_screen'
+                on_enter: root.fill_box_fields()
+
+                BoxImage:
+                    source: 'images/giftbox.png'
+
+            Screen:
+                name: 'image_screen'
+
+                Image:
+                    id: content_image
+                    source: None
+
+        Label:
+            id: image_hint
+            font_size: 120
+            bold: True
+            size_hint: 1, 0.2
+
+<WhoInTheBushesScreen>
+    on_pre_enter: root.refresh_screen()
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            size_hint: 1, 0.2
+
+            BackImage:
+                source: 'images/back.png'
+                size_hint: 0.15, 1
+
+            Label:
+                text: "Кто в кустах?"
+                font_size: 72
+
+            RefreshImage:
+                source: 'images/refresh.png'
+                size_hint: 0.15, 1
+
+        FadeScreenManager:
+            id: images_screen_manager
+            size_hint: 1, 0.5
+
+            Screen:
+                name: 'box_screen'
+                on_enter: root.fill_box_fields()
+
+                BoxImage:
+                    source: 'images/bush.png'
+
+            Screen:
+                name: 'image_screen'
+
+                Image:
+                    id: content_image
+                    source: None
+
+        Label:
+            id: image_hint
+            font_size: 120
+            size_hint: 1, 0.2
+            bold: True
