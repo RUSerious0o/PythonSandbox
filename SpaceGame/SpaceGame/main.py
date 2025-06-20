@@ -1,8 +1,9 @@
 import pygame
 import sys
+from pygame.sprite import Group
 
 from gun import Gun
-from controls import events
+from controls import events, update_screen, update_bullets
 
 def run():
 
@@ -11,14 +12,13 @@ def run():
     pygame.display.set_caption("космические защитники")
     bg_color = (0, 0, 0)
     gun = Gun(screen)
+    bullets = Group()
 
     while True:
-        events(gun)
-
-        screen.fill(bg_color)
+        events(screen, gun, bullets)
         gun.update_gun()
-        gun.output()
-        pygame.display.flip()
+        update_bullets(bullets)
+        update_screen(bg_color, screen, gun, bullets)
 
 
 if __name__ == '__main__':
