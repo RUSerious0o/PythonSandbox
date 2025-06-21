@@ -1,9 +1,20 @@
 import pygame
 import sys
+import time
 
 from gun import Gun
 from bullet import Bullet
 from alien import Alien
+from stats import Stats
+
+def aliens_check(stats, screen, gun, aliens, bullets):
+    """проверка, добралась ли армия до края"""
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            gun_kill(stats, screen, gun, aliens, bullets)
+            break
+
 
 
 def create_army(screen: pygame.Surface, aliens: pygame.sprite.Group):
@@ -63,16 +74,31 @@ def update_screen(
     aliens.draw(screen)
     pygame.display.flip()
 
-def update_bullets(bullets: pygame.sprite.Group):
+def update_bullets(screen: pygame.Surface, aliens: pygame.sprite.Group, bullets: pygame.sprite.Group):
     """обновлять позиции пуль"""
 
     bullets.update()
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if len(aliens) == 0:
+        bullets.empty()
+        create_army(screen, aliens)
 
-def update_aliens(aliens: pygame.sprite.Group):
+def gun_kill(stats, screen, gun, aliens, bullets):
+    """столкновение пушки и армии"""
+    stats.guns_left -= 1
+    aliens.empty()
+    bullets.empty()
+    create_army(screen, aliens)
+    time.sleep(1)
+    gun.create_gun()
+
+def update_aliens(stats: Stats, screen: pygame.Surface, bullets: pygame.sprite.Group, gun: Gun, aliens: pygame.sprite.Group):
     """обновляем позиции пришельцев"""
 
     aliens.update()
-
+    if pygame.sprite.spritecollideany(gun, aliens):
+        gun_kill(stats, screen, gun, aliens, bullets)
+    aliens_check(stats, screen, gun, aliens, bullets)
