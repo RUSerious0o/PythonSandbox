@@ -6,6 +6,7 @@ from gun import Gun
 from controls import events, update_screen, update_bullets, create_army, update_aliens
 from alien import Alien
 from stats import Stats
+from scores import Scores
 
 def run():
 
@@ -19,13 +20,15 @@ def run():
     aliens = Group()
     create_army(screen, aliens)
     stats = Stats()
+    scores = Scores(screen, stats)
 
     while True:
         events(screen, gun, bullets)
-        gun.update_gun()
-        update_bullets(screen, aliens, bullets)
-        update_aliens(stats, screen, bullets, gun, aliens)
-        update_screen(bg_color, screen, gun, aliens, bullets)
+        if stats.run_game:
+            gun.update_gun()
+            update_bullets(screen, stats, scores, aliens, bullets)
+            update_aliens(stats, screen, bullets, gun, aliens)
+            update_screen(bg_color, screen, stats, scores, gun, aliens, bullets)
 
 
 if __name__ == '__main__':
