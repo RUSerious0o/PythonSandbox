@@ -8,12 +8,12 @@ from alien import Alien
 from stats import Stats
 from scores import Scores
 
-def aliens_check(stats, screen, gun, aliens, bullets):
+def aliens_check(stats, screen, scores, gun, aliens, bullets):
     """проверка, добралась ли армия до края"""
     screen_rect = screen.get_rect()
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
-            gun_kill(stats, screen, gun, aliens, bullets)
+            gun_kill(stats, screen, scores, gun, aliens, bullets)
             break
 
 
@@ -88,15 +88,17 @@ def update_bullets(screen: pygame.Surface, stats: Stats, scores: Scores, aliens:
         for aliens in collisions.values():
             stats.score += 10 * len(aliens)
         scores.image_score()
-        check_high_score(stats,scores)
+        check_high_score(stats, scores)
+        scores.image_guns()
     if len(aliens) == 0:
         bullets.empty()
         create_army(screen, aliens)
 
-def gun_kill(stats, screen, gun, aliens, bullets):
+def gun_kill(stats, screen, scores, gun, aliens, bullets):
     """столкновение пушки и армии"""
     if stats.guns_left > 0:
         stats.guns_left -= 1
+        scores.image_guns()
         aliens.empty()
         bullets.empty()
         create_army(screen, aliens)
@@ -106,17 +108,19 @@ def gun_kill(stats, screen, gun, aliens, bullets):
         stats.run_game = False
         sys.exit()
 
-def update_aliens(stats: Stats, screen: pygame.Surface, bullets: pygame.sprite.Group, gun: Gun, aliens: pygame.sprite.Group):
+def update_aliens(stats: Stats, screen: pygame.Surface, bullets: pygame.sprite.Group, scores: Scores, gun: Gun, aliens: pygame.sprite.Group):
     """обновляем позиции пришельцев"""
 
     aliens.update()
     # if pygame.sprite.collideany(gun, aliens):
     if pygame.sprite.spritecollideany(gun, aliens):
-        gun_kill(stats, screen, gun, aliens, bullets)
-    aliens_check(stats, screen, gun, aliens, bullets)
+        gun_kill(stats, screen, scores, gun, aliens, bullets)
+    aliens_check(stats, screen, scores, gun, aliens, bullets)
 
 def check_high_score(stats, scores):
     """проверка новых рекордов"""
     if stats.score > stats.high_score:
         stats.high_score = stats.score
         scores.image_high_score()
+        with open('high_score.txt', 'w') as f:
+            f.write(str(stats.high_score))
