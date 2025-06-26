@@ -7,11 +7,11 @@ WIDTH, HEIGHT = 700, 800
 fps = 60
 
 platform_w = 200
-platform_h = 30
-platform_speed = 5
+platform_h = 20
+platform_speed = 10
 
 ball_rabius = 20
-ball_speed = 5
+ball_speed = 10
 ball_rect = int(ball_rabius * 2 ** 0.5)
 dx, dy = -1, -1
 
@@ -28,16 +28,35 @@ platform = pygame.Rect(
 )
 
 ball = pygame.Rect(
-    rnd(ball_rect, WIDTH - ball_rect ),
+    rnd(ball_rect, WIDTH - ball_rect),
     HEIGHT // 2,
     ball_rect,
     ball_rect
 )
 block_list = []
-for i in range(10):
+for i in range(6):
     for j in range(4):
         block = pygame.Rect(10 + 120 * i, 10 + 70 * j, 110, 60)#1:28:02
         block_list.append(block)
+
+def detect_col(dx, dy, ball, rect):
+    eps = 10
+    if dx > 0:
+        delta_x = ball.right - rect.left
+    else:
+        delta_x = rect.right - ball.left
+    if dy > 0:
+        delta_y = ball.bottom - rect.top
+    else:
+        delta_y = rect.bottom - ball.top
+
+    if delta_x > delta_y:
+        dy = -dy
+    elif delta_x < delta_y:
+        dx = -dx
+    return dx, dy
+
+
 
 while True:
     for event in pygame.event.get():
@@ -72,6 +91,17 @@ while True:
     ball.x += ball_speed * dx
     ball.y += ball_speed * dy
 
-
+    # if ball.colliderect(platform):
+    #     dx, dy = detect_col(dx, dy, ball, platform)
+    hit_index = ball.collidelist(block_list)
+    if hit_index != -1:
+        hit_rect = block_list.pop(hit_index)
+        dx, dy = detect_col(dx, dy, ball, hit_rect)
+    if ball.bottom > HEIGHT:
+        print('Игра закончена!')
+        sys.exit()
+    elif not len(block_list):
+        print('Победа!')
+        sys.exit()
     pygame.display.flip()
     clock.tick(fps)
